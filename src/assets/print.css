@@ -1,0 +1,120 @@
+
+.print-section {
+    display: none;
+}
+
+.print-section{
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    background-color: white !important;
+}
+
+
+
+.print-section .mosaic {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: white;
+}
+
+.print-section .mosaic .mosaic-qr {
+    background-size: cover;
+    background-position: center;
+    border: #333 .2px solid;
+    float: left;
+}
+.print-section .mosaic .mosaic-qr .qrInfoBlock {
+    margin: auto;
+    width: 100%;
+}
+.print-section .mosaic .mosaic-qr .qrInfoBlock.vert {
+    width: auto;
+    height: 100%;
+}
+
+.print-section .mosaic .mosaic-qr .qrInfoBlock.hor {
+    display: inline-flex;
+    width: 100%;
+    height: auto;
+}
+.print-section .mosaic .mosaic-qr .qrInfoBlock .qrLegend {
+    position: relative;
+}
+
+.print-section .mosaic .mosaic-qr.vert{
+
+}
+.print-section .mosaic .mosaic-qr .qrLegend .title{
+    background-color: black;
+    color: white;
+    text-align: center;
+    margin: 0;
+    line-height: 2rem;
+    text-transform: uppercase;
+}
+.print-section .mosaic .qrInfoBlock .qrLegend {
+    position: relative;
+}
+.print-section .qrLogo{
+    background: transparent url(/logo_blue.png) no-repeat center center/contain;
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    z-index: 100;
+}
+.print-section .mosaic .qrInfoBlock.pnt .qrLegend,
+.print-section .mosaic .qrInfoBlock.pnt .qrLegend .qrLogo,
+.print-section .mosaic .qrInfoBlock.pnt .qrLegend .title{
+    display: none;
+}
+
+
+@media print {
+
+    .mainContentBlock,
+    .no-print-section,
+    .headBlock { display: none !important; }
+
+    .print-section {
+        display: block !important;
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+
+    .print-section .mosaic {
+        left: 0;
+        z-index: 10000;
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+    }
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    body {
+        margin: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .print-section {
+        page-break-inside: auto;
+    }
+
+    .mosaic-qr {
+        break-inside: avoid;
+    }
+}

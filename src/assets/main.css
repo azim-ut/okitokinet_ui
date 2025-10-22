@@ -1,0 +1,183 @@
+body{
+    background-color: transparent;
+}
+.inputTitle{
+    padding-left: 5px;
+}
+.LoadingPlane{
+    width: 100%;
+    z-index: 900000;
+}
+
+.inputText {
+    width: 100%;
+    padding: 0 16px 0 16px;
+    height: 38px;
+    border-radius: 12px;
+}
+.formDelimiter{
+    height: 10px;
+}
+.catalogsList{
+    width: 100%;
+    margin: auto;
+    max-width: 400px;
+    min-height: 100vh;
+    padding: 0;
+    position: relative;
+}
+
+.lightBlueBtn,
+.whiteBtn,
+.blackBtn,
+.grayBtn,
+.redBtn,
+.blueBtn{
+    background: rgba(67, 120, 255, 0.1);
+    box-shadow: none;
+    width: 100%;
+    border-radius: 12px;
+    color: rgba(0, 122, 255, 1);
+    padding: 10px;
+}
+.blueBtn{
+    background: #007AFF;
+    color: #fff;
+}
+.redBtn{
+    background: #ff0000;
+    color: #fff;
+}
+.grayBtn{
+    background: #adadad;
+    color: #1c1414;
+}
+.blackBtn{
+    background: #000019;
+    color: white;
+    margin-right: 0;
+}
+.whiteBtn{
+    background: #fff;
+    color: #007AFF;
+    margin-right: 0;
+}
+.lightBlueBtn{
+    background: #93C2FFFF;
+    color: #3e42a1;
+    margin-right: 0;
+}
+
+.mainContentBlock{
+    width: 100%;
+    margin: 5px auto auto auto;
+    max-width: 400px;
+    padding: 0;
+    position: relative;
+}
+.viewBlock{
+    padding: 0 12px 0 20px;
+}
+
+.inputText{
+    border: none;
+    border-radius: 12px;
+    padding: 0 16px 0 16px;
+}
+textarea{
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    gap: 12px;
+    width: 100%;
+}
+.v-messages{
+    display: none;
+}
+.scaleUpEffect {
+    transition: transform .5s ease;
+    transform: scale(1.3);
+}
+
+.rowRightBlock{
+    position: absolute;
+    right: 0;
+    top: calc(50% - 25px);
+    padding: 10px 5px 10px 5px;
+    border-left: rgba(100,100,100, .3) 1px solid;
+
+}
+.rowRight{
+    width: 30px !important;
+    height: 30px !important;
+}
+.rowRight:hover svg{
+    color: yellowgreen;
+}
+
+.LoadingPlane{
+    min-height: 100vh;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+.progressBlock {
+
+}
+/* HTML: <div class="loader"></div> */
+/* HTML: <div class="loader"></div> */
+.loader {
+    width: 4px;
+    color: #000;
+    z-index: -1;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow:
+            19px -19px 0 0px, 38px -19px 0 0px, 57px -19px 0 0px;
+    transform: translateX(-38px) translateY(20px);
+    animation: l26 1.4s infinite linear;
+}
+
+.loader.white {
+    color: white;
+}
+
+.footerTools{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+.footerToolsBody{
+    display: inline-flex;
+}
+@keyframes l26 {
+    12.5% {box-shadow:
+            19px -19px 0 0px, 38px -19px 0 0px, 57px -19px 0 5px}
+    25%   {box-shadow:
+            19px -19px 0 5px, 38px -19px 0 0px, 57px -19px 0 5px}
+    50%   {box-shadow:
+            19px -19px 0 5px, 38px -19px 0 5px, 57px -19px 0 0px}
+    62.5% {box-shadow:
+            19px -19px 0 0px, 38px -19px 0 0px, 57px -19px 0 0px}
+    75%   {box-shadow:
+            19px -19px 0 0px, 38px -19px 0 5px, 57px -19px 0 0px}
+    87.5% {box-shadow:
+            19px -19px 0 0px, 38px -19px 0 5px, 57px -19px 0 0px}
+}
+@media (max-width: 500px) {
+    .catalogsList{
+        padding: 0 0;
+        width: 100%;
+    }
+    .mainContentBlock{
+        padding: 0px;
+        width: 100%;
+    }
+}
+
