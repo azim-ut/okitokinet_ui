@@ -12,8 +12,8 @@
     </v-card-text>
     <v-card-actions>
       <div>
-        <div v-for="url in audioUrls">
-          <audio :src="url" ref="combinedAudioPlayer" controls></audio>
+        <div v-for="row in audioBeans">
+          <audio :src="row.url" ref="combinedAudioPlayer" controls></audio>
         </div>
       </div>
     </v-card-actions>
@@ -25,12 +25,14 @@ import {defineComponent, type Ref} from "vue";
 import {mapStores} from "pinia";
 import {appText, fetchLocalizedText} from "@/main";
 import {BackendStore} from "@/stores/backend/backend.ts";
+import type {AudioBean} from "@/stores/backend/types.ts";
 
 export default defineComponent({
   components: {},
   computed: {...mapStores(BackendStore)},
   data(){
     return {
+      text: appText,
       player: {
         text: appText,
         audioPlayer: null as Ref|null,
@@ -38,7 +40,7 @@ export default defineComponent({
         blob: {} as Blob
       },
       audioBlobs: [] as Blob[],
-      audioUrls: [] as string[],
+      audioBeans: [] as AudioBean[],
       mediaRecorder: null as MediaRecorder | null,
       stream: null as MediaStream | null,
       isRecording: false,
@@ -50,7 +52,7 @@ export default defineComponent({
 
     async startRecording() {
       this.audioBlobs = []
-      this.audioUrls = []
+      this.audioBeans = []
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -60,9 +62,16 @@ export default defineComponent({
 
         this.recorder.ondataavailable = (e: BlobEvent) => {
           if (e.data.size > 0) {
-            this.audioBlobs.push(e.data)
-            const blobUrl = URL.createObjectURL(event.data)
-            this.audioUrls.push(blobUrl)
+            const blob = e.data
+            this.audioBlobs.push(blob)
+            const blobUrl = URL.createObjectURL(blob)
+            const dataBean = {
+              blob: blob,
+              url: blobUrl
+            } as AudioBean
+            this.audioBeans.push(dataBean)
+
+            this.BackendStore.soundToText(blob)
           }
         };
 

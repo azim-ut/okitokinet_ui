@@ -10,7 +10,7 @@ export const silentApiBackend = defineSilentAxios(axios.create(Object.assign(def
 })))
 
 export const BackendEndpoints = {
-    textToSound: "/api/v1/income/text/to/sound",
-    textToImage: "/api/v1/income/text/to/image",
-    textDecoded: "/api/v1/income/text/decoded",
+    textToSound: "/api/v1/okitoki_back/text/to/sound",
+    textToImage: "/api/v1/okitoki_back/text/to/image",
+    warToText: "/api/v1/okitoki_back/wav/to/text/decoder"
 }

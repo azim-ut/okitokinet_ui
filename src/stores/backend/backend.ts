@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import type {BackendState} from "./types";
+import type {BackendState, TextToSoundResponse} from "./types";
 import {BackendService} from "@/stores/backend/BackendService.ts";
 
 export const BackendStore = defineStore('Backend', {
@@ -11,8 +11,13 @@ export const BackendStore = defineStore('Backend', {
         getLoading: (state: BackendState): number => state.loading,
     },
     actions: {
-        async fetchSound(data: string) {
-            return BackendService.fetchSound(data)
+        async fetchSound(data: string, minF: number, maxF: number, tickMs: number): Promise<TextToSoundResponse> {
+            return await BackendService.fetchSound(data, minF, maxF, tickMs);
+        },
+        async soundToText(blob: Blob): Promise<void> {
+            return BackendService.soundToText(blob).then((res) => {
+                console.log(res)
+            })
         }
     }
 })

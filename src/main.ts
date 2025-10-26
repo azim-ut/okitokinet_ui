@@ -1,24 +1,28 @@
 import './assets/main.css'
 import './assets/base.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import router from './router'
 
 // Vuetify
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
 import AppText from '@/data/ru/app_text.json';
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import {aliases} from "vuetify/iconsets/mdi";
-import {mdi} from "vuetify/iconsets/mdi-svg";
-import type {Emit} from "@/models/enum/Emit.ts";
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { createVuetify } from 'vuetify'
+
+import type {Emit} from "@/models/enum/Emit.ts"
+
+import router from './router'
 
 
 import App from './App.vue'
 
 const vuetify = createVuetify({
+    components,
+    directives,
     theme: {
         defaultTheme: 'dark',//light|dark
         themes: {
@@ -48,9 +52,7 @@ const vuetify = createVuetify({
         sets: {
             mdi
         }
-    },
-    components,
-    directives,
+    }
 })
 
 export const appText = AppText

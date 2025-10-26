@@ -1,7 +1,5 @@
-import type {AxiosError, AxiosInstance} from "axios";
-import router from "@/router";
+import type {AxiosInstance} from "axios";
 import {NotificationStore} from "@/stores/notification/notification.ts";
-import {appText, fetchLocalizedText} from "@/main.ts";
 
 
 export const defaultAxiosOptions: any = {
@@ -66,53 +64,4 @@ export function defineSilentAxios(api: AxiosInstance){
         }
     )
     return api
-}
-
-export function toastMessage(response: any, targetSelector: string|null = null){
-    let messages = fetchLocalizedText(appText)
-    if(response && response.data && response.data.message){
-        if(targetSelector){
-            document.querySelectorAll(targetSelector).forEach(element => {
-                element.classList.add('scaleUpEffect');
-                setTimeout(() => {
-                    element.classList.remove('scaleUpEffect');
-                }, 800)
-            })
-        }
-        NotificationStore().addInfoTopNotification(messages[response.data.message]??null, 2000)
-    }
-}
-
-export function defaultErrorHandler(error: AxiosError){
-    if(error){
-        // console.log([401,403], error.toJSON())
-    }
-    if(error && error.response?.status){
-        let errorsText = fetchLocalizedText(appText)
-
-        if(error.response && [413].includes(error.response.status) && location.href != '/backoffice/auth'){
-            NotificationStore().addErrorTopNotification(errorsText.PAYLOAD_TOO_LARGE, 2000)
-        }
-        if(error.response && [500].includes(error.response.status) && error.response.data){
-            NotificationStore().addErrorTopNotification(errorsText[error.response.data.message]??error.response.data.message, 2000)
-        }
-        if(error.response && [401,403].includes(error.response.status) && location.href != '/backoffice/auth'){
-            console.log("NO USER")
-            router.push('/auth')
-        }
-    }else if(error){
-        NotificationStore().addErrorTopNotification("POSSIBLE_PAYLOAD_TOO_LARGE", 2000)
-    }
-    return
-}
-
-export function userErrorHandler(error: AxiosError){
-    // @ts-ignore
-    if(error.response?.data?.level === "ERROR"){
-        // @ts-ignore
-        const row = error.response.data
-        // notificationStore().addErrorTopNotification(row.message, 1000)
-        throw error
-    }
-    return
 }

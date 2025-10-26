@@ -10,14 +10,14 @@ export default defineConfig(({ command, mode }) => {
         plugins: [
             vue(),
         ],
-        base: '/radio',
+        base: '/okitoki',
         server: {
             host: "localhost",
             port: 3005
         },
         build: {
             chunkSizeWarningLimit: 1600,
-            outDir: "../apps/radio",
+            outDir: "../apps/okitoki",
             emptyOutDir: true
         },
         resolve: {

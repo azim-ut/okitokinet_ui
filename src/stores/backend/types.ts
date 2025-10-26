@@ -20,6 +20,17 @@ export interface RadioMsg {
     target: string|null
     position: NtfPosition
 }
+
+export interface AudioBean {
+    blob: Blob,
+    url: string
+}
+
+export interface SoundToTextResponse {
+    decoded: string,
+    decrypted: string
+}
+
 export let defaultInfoNotification: RadioMsg = {
     type: NtfType.INFO,
     show: false,

@@ -7,22 +7,69 @@
       >
         <v-card-text>
           <v-textarea label="Label" v-model="sendForm.textToSend"></v-textarea>
+          <div class="grid grid2">
+            <div>
+
+              <v-number-input
+                  :reverse="false"
+                  controlVariant="split"
+                  label="Частота 0"
+                  v-model="minF"
+                  :hideInput="false"
+                  :inset="false"
+                  variant="outlined"
+              ></v-number-input>
+            </div>
+            <div>
+
+              <v-number-input
+                  :reverse="false"
+                  controlVariant="split"
+                  label="Частота 1"
+                  v-model="maxF"
+                  :hideInput="false"
+                  :inset="false"
+                  variant="outlined"
+              ></v-number-input>
+            </div>
+            <div>
+
+              <v-number-input
+                  :reverse="false"
+                  controlVariant="split"
+                  label="Тик мс"
+                  v-model="tickMs"
+                  :decimal-separator="'.'"
+                  :hideInput="false"
+                  :inset="false"
+                  variant="outlined"
+              ></v-number-input>
+            </div>
+            <div></div>
+          </div>
           <v-btn @click="sendText()"
                  style="width: 100%;"
                  color="orange-lighten-2">Конвертировать в звук</v-btn>
         </v-card-text>
         <v-card-actions>
-          <div>
-            <code>
-              {{player.textEncoded}}
-            </code>
-            <br/>
-            <audio ref="playerDiv" width="100%" class="" controls></audio>
+          <div style="width: 100%;">
+
+            <div>
+
+            </div>
+            <v-spacer></v-spacer>
+            <div>
+              <div style="font-size:12px; max-width: 350px; width: 100%; margin: auto;">
+                {{player.textEncoded}}
+              </div>
+              <br/>
+              <audio ref="playerDiv" width="100%" class="" controls></audio>
+            </div>
           </div>
         </v-card-actions>
       </v-card>
       <hr />
-      <Recorder />
+      <MicrophoneListener :minF="minF" :maxF="maxF" />
     </div>
   </div>
 
@@ -34,14 +81,18 @@ import {mapStores} from "pinia"
 import {BackendStore} from "@/stores/backend/backend.ts";
 import {appText, fetchLocalizedText} from "@/main.ts";
 import Recorder from "@/components/Recorder.vue";
+import MicrophoneListener from "@/components/MicrophoneListener.vue";
 
 
 export default defineComponent({
-  components: {Recorder},
+  components: {MicrophoneListener, Recorder},
   computed: {...mapStores(BackendStore)},
   data(){
     return {
       text: appText,
+      minF: 1200,
+      maxF: 2200,
+      tickMs: 200,
       player: {
         audioPlayer: null as Ref|null,
         blobUrl: null as Ref|null,
@@ -50,7 +101,7 @@ export default defineComponent({
         textEncoded: null as null|string,
       },
       sendForm: {
-        textToSend: null as string|null,
+        textToSend: "кто ходит в гости по утрам" as string|null,
         loading: false,
       }
     }
@@ -63,11 +114,15 @@ export default defineComponent({
   methods: {
     sendText(){
       if(this.sendForm.textToSend){
-        this.BackendStore.fetchSound(this.sendForm.textToSend).then(res => {
+        this.sendForm.loading = true
+
+        this.BackendStore.fetchSound(this.sendForm.textToSend, this.minF, this.maxF, this.tickMs).then(res => {
+          console.log(res)
           const blob = this.base64ToBlob(res.blob, 'audio/wav');
           this.player.text = res.text
           this.player.textEncoded = res.textEncoded
           this.setBlobToPlay(blob)
+          this.sendForm.loading = false
         })
       }
     },
@@ -105,5 +160,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+code{
+  overflow-wrap: break-word;
+}
 </style>
