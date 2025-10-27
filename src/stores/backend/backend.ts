@@ -7,7 +7,7 @@ export const BackendStore = defineStore('Backend', {
         loading: 0,
         minF: 1200,
         maxF: 2200,
-        tickMs: 20
+        tickMs: 200
     }),
     getters: {
         isLoading: (state: BackendState): boolean => state.loading > 0,

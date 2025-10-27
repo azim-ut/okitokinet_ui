@@ -1,7 +1,7 @@
 <template>
-  <HeadTabs></HeadTabs>
   <div class="centeredBlock">
     <div class="marginAuto">
+      <HeadTabs></HeadTabs>
       <FreqSettings ></FreqSettings>
       <v-card>
         <v-card-title style="background: #151517; font-size: 80%;">
@@ -27,7 +27,7 @@
                 {{player.textEncoded}}
               </div>
               <br/>
-              <audio ref="playerDiv" width="100%" class="" controls></audio>
+              <audio ref="playerDiv" style="width: 100%" class="" controls></audio>
             </div>
           </div>
         </v-card-actions>

@@ -3,8 +3,9 @@
 
   <div v-if="$props.bits.length > 0">
     <div class="centeredBlock">
-      <div class="marginAuto qrDraw" :style="{'width': (dotSize*2) + 'px', 'height': (dotSize*2) + 'px'}">
+      <div class="marginAuto qrDraw" :style="{'width': (150) + 'px', 'height': (150) + 'px'}">
         <div v-for="b in $props.bits"
+             :style="{'width': (dotSize) + 'px', 'height': (dotSize) + 'px'}"
              :class="{'qrPoint': true, 'white': b === 1, 'black': b === 0}">
         </div>
       </div>
@@ -25,9 +26,8 @@ export default defineComponent({
   },
   data() {
     return {
-      canvasSize: 400,
       maxSize: 1600,
-      matrix: [],
+      matrix: [] as number[][],
       stop: false,
       dotSize: 2
     };
@@ -43,26 +43,23 @@ export default defineComponent({
     if(this.dotSize<2){
       this.dotSize = 2
     }
-    this.canvasSize = Math.round(this.$props.bits.length*this.dotSize);
-    console.log("--->", this.canvasSize)
+
   },
   methods: {
-    updateMatrixAndRender(bits) {
-      if(!bits || !bits.length || this.canvasSize <= 3) {
+    updateMatrixAndRender(bits: number[]) {
+      if(!bits || !bits.length) {
         return
       }
-      this.canvasSize *= 1
       const maxBits = Math.min(10, bits.length);
       const sqrt = Math.floor(Math.sqrt(maxBits));
       const size = sqrt * sqrt;
       const trimmed = bits.slice(bits.length - size); // скользящее окно
 
       // Преобразование в матрицу NxN
-      const matrix = [];
+      this.matrix = [];
       for (let i = 0; i < sqrt; i++) {
-        matrix.push(trimmed.slice(i * sqrt, (i + 1) * sqrt));
+        this.matrix.push(trimmed.slice(i * sqrt, (i + 1) * sqrt));
       }
-      this.matrix = matrix;
 
 
       // Попытка декодирования QR
@@ -84,7 +81,7 @@ export default defineComponent({
   position: relative;
   overflow: hidden;
   margin: auto;
-  padding: 10px;
+  padding: 0;
   border: white 1px solid;
 }
 

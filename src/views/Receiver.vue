@@ -1,7 +1,7 @@
 <template>
-  <HeadTabs></HeadTabs>
   <div class="centeredBlock">
     <div class="marginAuto">
+      <HeadTabs></HeadTabs>
       <FreqSettings ></FreqSettings>
       <v-card>
         <v-card-title style="background: #151517; font-size: 80%;">
@@ -24,6 +24,7 @@
             {{bits}}
           </div>
         </v-card-text>
+
       </v-card>
     </div>
   </div>
@@ -45,13 +46,15 @@ export default defineComponent({
     return {
       lastF: 0,
 
-      audioContext: null,
-      analyser: null,
-      source: null,
+      tickDetector: -1,
+      audioContext: null as AudioContext|null,
+      analyser: null as null|AnalyserNode,
+      source: null as null|MediaStreamAudioSourceNode,
       micStream: null,
       isListening: false,
       testBits: bytesDefault,
-      bits: [],
+      bits: [] as number[],
+      bufferChunks: [] as number[],
       bitsEpoch: 0,
       intervalId: null,
       lastTickTime: null,
@@ -59,95 +62,106 @@ export default defineComponent({
     }
   },
   methods: {
-    async startListening() {
-      if (this.isListening) return
-
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      this.source = this.audioContext.createMediaStreamSource(this.micStream)
-      this.analyser = this.audioContext.createAnalyser()
-      this.source.connect(this.analyser)
-
-      this.analyser.fftSize = 2048
+    startAccurateTickDetection() {
       this.isListening = true
-      this.bits = []
-      this.lastTickTime = null
+      const TICK_DURATION_MS = this.BackendStore.getTickMs
+      const SAMPLE_INTERVAL = 50
+      // const SAMPLE_INTERVAL = Math.round(this.BackendStore.getTickMs/4)
+      const DETECT_FREQS = { '0': this.BackendStore.getMinF, '1': this.BackendStore.getMaxF }
+      const FREQ_TOLERANCE = 15 // +- Гц
 
-      this.intervalId = setInterval(this.analyzeFrequency, 100)
+      this.bits = []
+      this.bufferChunks = [] // накопление частот за тик
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
+            if(!this.audioContext) {
+              return
+            }
+
+            this.source = this.audioContext.createMediaStreamSource(stream)
+            this.analyser = this.audioContext.createAnalyser()
+
+            this.analyser.fftSize = 2048
+            this.source.connect(this.analyser)
+
+            const bufferSize = this.analyser.frequencyBinCount
+            const dataArray = new Uint8Array(bufferSize)
+
+            let elapsedMs = 0
+
+            this.tickDetector = setInterval(() => {
+              if(!this.analyser || !this.audioContext){
+                return
+              }
+              this.analyser.getByteFrequencyData(dataArray)
+
+              // Находим доминирующую частоту
+              let maxAmp = 0
+              let peakIndex = -1
+              for (let i = 0; i < bufferSize; i++) {
+                if (dataArray[i] > maxAmp) {
+                  maxAmp = dataArray[i]
+                  peakIndex = i
+                }
+              }
+
+              const sampleRate = this.audioContext.sampleRate
+              const binSize = sampleRate / this.analyser.fftSize
+              const dominantFreq = peakIndex * binSize
+
+              this.bufferChunks.push(dominantFreq)
+              elapsedMs += SAMPLE_INTERVAL
+
+              // Если набрали один тик (~200 мс)
+              if (elapsedMs >= TICK_DURATION_MS) {
+                const avgFreq = this.getAverageFreq(this.bufferChunks)
+
+                if (Math.abs(avgFreq - DETECT_FREQS['0']) < FREQ_TOLERANCE) {
+                  this.bits.push(0)
+                } else if (Math.abs(avgFreq - DETECT_FREQS['1']) < FREQ_TOLERANCE) {
+                  this.bits.push(1)
+                } else {
+                  // Не распознано — игнорируем
+                }
+
+                // Очистим тик
+                this.bufferChunks = []
+                elapsedMs = 0
+              }
+            }, SAMPLE_INTERVAL)
+      })
+    },
+
+    getAverageFreq(freqArray: number[]) {
+      const valid = freqArray.filter(f => f > 0 && isFinite(f))
+      if (!valid.length) return 0
+      const sum = valid.reduce((a, b) => a + b, 0)
+      return sum / valid.length
+    },
+
+    async startListening() {
+      this.startAccurateTickDetection()
     },
 
     stopListening() {
-      if (!this.isListening) return
+      if (this.tickDetector) {
+        clearInterval(this.tickDetector)
+        this.tickDetector = -1
+      }
 
-      clearInterval(this.intervalId)
-      this.micStream.getTracks().forEach(track => track.stop())
-      this.audioContext.close()
+      if (this.source?.mediaStream) {
+        this.source.mediaStream.getTracks().forEach(track => track.stop())
+      }
 
-      this.audioContext = null
-      this.analyser = null
+      if (this.audioContext) {
+        this.audioContext.close()
+        this.audioContext = null
+      }
+
       this.source = null
-      this.micStream = null
-      this.isListening = false
-      this.lastTickTime = null
-    },
-
-    analyzeFrequency() {
-      const bufferLength = this.analyser.frequencyBinCount
-      const dataArray = new Uint8Array(bufferLength)
-      this.analyser.getByteFrequencyData(dataArray)
-
-      const sampleRate = this.audioContext.sampleRate
-      const binSize = sampleRate / this.analyser.fftSize
-
-      let maxVal = 0
-      let maxIndex = -1
-
-      for (let i = 0; i < bufferLength; i++) {
-        if (dataArray[i] > maxVal) {
-          maxVal = dataArray[i]
-          maxIndex = i
-        }
-      }
-
-      const dominantFreq = maxIndex * binSize
-      let absF = Math.round(Math.abs(dominantFreq))
-      let minF = this.BackendStore.getMinF
-      let maxF = this.BackendStore.getMaxF
-      let tickMs = this.BackendStore.getTickMs
-
-
-      if(this.lastF != absF){
-        this.lastF = absF
-      }
-      const now = Date.now()
-      if (Math.abs(absF - minF) < 100) {
-        this.handleDetectedBit(0, now)
-      } else if (Math.abs(absF - maxF) < 100) {
-        this.handleDetectedBit(1, now)
-      }else{
-        this.handleDetectedBit(0, now)
-      }
-    },
-
-    handleDetectedBit(bit, now) {
-      if (this.lastTickTime === null) {
-        this.bits.push(bit)
-      } else {
-        const delta = now - this.lastTickTime
-        if (delta > this.tickGapMs) {
-          // была пауза → добавляем 0 перед новым битом
-          this.bits.push(0)
-        }
-        this.bits.push(bit)
-      }
-      this.lastTickTime = now
-
-      this.bitsEpoch++
-      if (this.bits.length > 1600) {
-        this.bitsEpoch = 0
-        this.bits.shift()
-      }
-
+      this.analyser = null
     }
   },
   created(){

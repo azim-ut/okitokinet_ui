@@ -67,7 +67,7 @@ export default defineComponent({
     return {
       minF: 1200,
       maxF: 2200,
-      tickMs: 20,
+      tickMs: 200,
       panel: [1],
       expand: false
     }
