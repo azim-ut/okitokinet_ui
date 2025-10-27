@@ -1,15 +1,31 @@
 <template>
-  <div>
-    <h2>Массив значений:</h2>
+  <HeadTabs></HeadTabs>
+  <div class="centeredBlock">
+    <div class="marginAuto">
+      <FreqSettings ></FreqSettings>
+      <v-card>
+        <v-card-title style="background: #151517; font-size: 80%;">
+          <div><b>Прием сигнала</b></div>
+          <div>Включите сигнал на ДРУГОМ устройстве</div>
+        </v-card-title>
+        <v-card-text style="padding: 0;">
+          <div style="margin: 16px;">
+            <div>Массив значений:</div>
+          </div>
 
-    <button @click="startListening" :disabled="isListening">🎙 Начать</button>
-    <button @click="stopListening" :disabled="!isListening">⛔️ Стоп</button>
-  </div>
-  <div>
-    <QrCanvas :bits="bits" :key="bitsEpoch" />
-  </div>
-  <div>
-    {{bits}}
+          <div class="grid grid2 forced">
+            <v-btn @click="startListening" :disabled="isListening">🎙 Начать</v-btn>
+            <v-btn @click="stopListening" :disabled="!isListening">⛔️ Стоп</v-btn>
+          </div>
+          <div>
+            <QrCanvas :bits="bits" :key="bitsEpoch" />
+          </div>
+          <div>
+            {{bits}}
+          </div>
+        </v-card-text>
+      </v-card>
+    </div>
   </div>
 </template>
 
@@ -19,20 +35,12 @@ import {mapStores} from "pinia";
 import {BackendStore} from "@/stores/backend/backend.ts";
 import QrCanvas from "@/components/QrCanvas.vue";
 import bytesDefault from "./../../../okitokinet/file/res/temp.json";
+import HeadTabs from "@/components/HeadTabs.vue";
+import FreqSettings from "@/components/FreqSettings.vue";
 
 export default defineComponent({
-  components: {QrCanvas},
+  components: {HeadTabs, QrCanvas, FreqSettings},
   computed: {...mapStores(BackendStore)},
-  props: {
-    minF: {
-      type: Number,
-      required: true
-    },
-    maxF: {
-      type: Number,
-      required: true
-    }
-  },
   data(){
     return {
       lastF: 0,
@@ -103,16 +111,18 @@ export default defineComponent({
 
       const dominantFreq = maxIndex * binSize
       let absF = Math.round(Math.abs(dominantFreq))
+      let minF = this.BackendStore.getMinF
+      let maxF = this.BackendStore.getMaxF
+      let tickMs = this.BackendStore.getTickMs
+
+
       if(this.lastF != absF){
         this.lastF = absF
-        console.log(this.lastF)
       }
       const now = Date.now()
-      if (Math.abs(absF - this.$props.minF) < 100) {
-        console.log(0, Math.abs(absF - this.$props.minF))
+      if (Math.abs(absF - minF) < 100) {
         this.handleDetectedBit(0, now)
-      } else if (Math.abs(absF - this.$props.maxF) < 100) {
-        console.log(1, Math.abs(absF - this.$props.maxF))
+      } else if (Math.abs(absF - maxF) < 100) {
         this.handleDetectedBit(1, now)
       }else{
         this.handleDetectedBit(0, now)

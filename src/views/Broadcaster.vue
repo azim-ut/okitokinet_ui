@@ -1,52 +1,16 @@
 <template>
+  <HeadTabs></HeadTabs>
   <div class="centeredBlock">
     <div class="marginAuto">
-      <v-card
-          title="Текст для передачи"
-          subtitle="Ваш текст будет зашифрован и преобразован в звук"
-      >
+      <FreqSettings ></FreqSettings>
+      <v-card>
+        <v-card-title style="background: #151517; font-size: 80%;">
+          <div><b>Текст для передачи</b></div>
+          <div>Ваш текст будет зашифрован и преобразован в звук</div>
+        </v-card-title>
         <v-card-text>
+          <br />
           <v-textarea label="Label" v-model="sendForm.textToSend"></v-textarea>
-          <div class="grid grid2">
-            <div>
-
-              <v-number-input
-                  :reverse="false"
-                  controlVariant="split"
-                  label="Частота 0"
-                  v-model="minF"
-                  :hideInput="false"
-                  :inset="false"
-                  variant="outlined"
-              ></v-number-input>
-            </div>
-            <div>
-
-              <v-number-input
-                  :reverse="false"
-                  controlVariant="split"
-                  label="Частота 1"
-                  v-model="maxF"
-                  :hideInput="false"
-                  :inset="false"
-                  variant="outlined"
-              ></v-number-input>
-            </div>
-            <div>
-
-              <v-number-input
-                  :reverse="false"
-                  controlVariant="split"
-                  label="Тик мс"
-                  v-model="tickMs"
-                  :decimal-separator="'.'"
-                  :hideInput="false"
-                  :inset="false"
-                  variant="outlined"
-              ></v-number-input>
-            </div>
-            <div></div>
-          </div>
           <v-btn @click="sendText()"
                  style="width: 100%;"
                  color="orange-lighten-2">Конвертировать в звук</v-btn>
@@ -68,31 +32,27 @@
           </div>
         </v-card-actions>
       </v-card>
-      <hr />
-      <MicrophoneListener :minF="minF" :maxF="maxF" />
     </div>
   </div>
 
 </template>
 
 <script lang="ts">
-import {defineComponent, type Ref, ref} from "vue"
+import {defineComponent, type Ref} from "vue"
 import {mapStores} from "pinia"
 import {BackendStore} from "@/stores/backend/backend.ts";
 import {appText, fetchLocalizedText} from "@/main.ts";
 import Recorder from "@/components/Recorder.vue";
-import MicrophoneListener from "@/components/MicrophoneListener.vue";
+import HeadTabs from "@/components/HeadTabs.vue";
+import FreqSettings from "@/components/FreqSettings.vue";
 
 
 export default defineComponent({
-  components: {MicrophoneListener, Recorder},
+  components: {FreqSettings, Recorder, HeadTabs},
   computed: {...mapStores(BackendStore)},
   data(){
     return {
       text: appText,
-      minF: 1200,
-      maxF: 2200,
-      tickMs: 200,
       player: {
         audioPlayer: null as Ref|null,
         blobUrl: null as Ref|null,
@@ -101,7 +61,7 @@ export default defineComponent({
         textEncoded: null as null|string,
       },
       sendForm: {
-        textToSend: "кто ходит в гости по утрам" as string|null,
+        textToSend: "Test" as string|null,
         loading: false,
       }
     }
@@ -116,8 +76,12 @@ export default defineComponent({
       if(this.sendForm.textToSend){
         this.sendForm.loading = true
 
-        this.BackendStore.fetchSound(this.sendForm.textToSend, this.minF, this.maxF, this.tickMs).then(res => {
-          console.log(res)
+        this.BackendStore.fetchSound(
+            this.sendForm.textToSend,
+            this.BackendStore.minF,
+            this.BackendStore.maxF,
+            this.BackendStore.tickMs
+        ).then(res => {
           const blob = this.base64ToBlob(res.blob, 'audio/wav');
           this.player.text = res.text
           this.player.textEncoded = res.textEncoded
@@ -141,18 +105,7 @@ export default defineComponent({
         bytes[i] = binary.charCodeAt(i);
       }
       return new Blob([bytes], { type: mimeType });
-    },
-    playAudio() {
-      if (this.player.audioPlayer.value) {
-        this.player.audioPlayer.value.play();
-      }
-    },
-
-    pauseAudio() {
-      if (this.player.audioPlayer.value) {
-        this.player.audioPlayer.value.pause();
-      }
-    },
+    }
 
 
   }

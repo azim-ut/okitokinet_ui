@@ -1,10 +1,13 @@
 <template>
 
 
-  <v-card
-      title="Запись с микрофона"
-      subtitle="Пытаемся распознать в звуковом сигнале QR-код"
-  >
+  <v-card>
+    <v-card-title style="background: #151517; font-size: 80%;">
+      <div><b>Запись с микрофона</b></div>
+    </v-card-title>
+    <v-card-subtitle style="background: #151517; font-size: 60%;">
+      <div>Пытаемся распознать в звуковом сигнале QR-код</div>
+    </v-card-subtitle>
     <v-card-text>
       <v-btn @click="startRecording" v-if="!isRecording">Start</v-btn>
       <v-btn @click="stopRecording" v-if="isRecording">Stop</v-btn>

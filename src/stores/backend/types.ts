@@ -1,7 +1,10 @@
 import {NtfPosition, NtfType} from "@/models/enum/Notification";
 
 export interface BackendState {
-    loading: number
+    loading: number,
+    minF: number,
+    maxF: number,
+    tickMs: number
 }
 
 export interface TextToSoundResponse {

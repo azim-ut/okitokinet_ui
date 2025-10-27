@@ -1,16 +1,19 @@
 <template>
 
+
   <div v-if="$props.bits.length > 0">
-    <div class="qrDraw" :style="{'width': (Math.sqrt($props.bits.length)*2) + 'px'}">
-      <div v-for="b in $props.bits"
-           :class="{'qrPoint': true, 'white': b===1, 'black': b===0}">
+    <div class="centeredBlock">
+      <div class="marginAuto qrDraw" :style="{'width': (dotSize*2) + 'px', 'height': (dotSize*2) + 'px'}">
+        <div v-for="b in $props.bits"
+             :class="{'qrPoint': true, 'white': b === 1, 'black': b === 0}">
+        </div>
       </div>
     </div>
   </div>
   <br />
 </template>
 
-<script>
+<script lang="ts">
 import {defineComponent} from "vue";
 
 export default defineComponent({
@@ -26,13 +29,22 @@ export default defineComponent({
       maxSize: 1600,
       matrix: [],
       stop: false,
+      dotSize: 2
     };
   },
   created(){
   },
   mounted() {
-    this.canvasSize = Math.round(this.$props.bits.length/2);
+
     this.updateMatrixAndRender(this.$props.bits);
+
+    const sz = Math.sqrt(this.$props.bits.length)
+    this.dotSize = Math.round(150/sz)
+    if(this.dotSize<2){
+      this.dotSize = 2
+    }
+    this.canvasSize = Math.round(this.$props.bits.length*this.dotSize);
+    console.log("--->", this.canvasSize)
   },
   methods: {
     updateMatrixAndRender(bits) {
@@ -68,7 +80,14 @@ export default defineComponent({
 }
 .matrix .white{ background: white;}
 
-.qrDraw{position: relative; overflow: hidden;}
+.qrDraw{
+  position: relative;
+  overflow: hidden;
+  margin: auto;
+  padding: 10px;
+  border: white 1px solid;
+}
+
 .qrDraw .qrPoint{
   float: left;
   width: 2px;
@@ -76,5 +95,8 @@ export default defineComponent({
 }
 .qrDraw .qrPoint.white{
   background: white;
+}
+.qrDraw .qrPoint.black{
+  background: darkblue;
 }
 </style>
