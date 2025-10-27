@@ -17,8 +17,14 @@
             <v-btn @click="startListening" :disabled="isListening">🎙 Начать</v-btn>
             <v-btn @click="stopListening" :disabled="!isListening">⛔️ Стоп</v-btn>
           </div>
+
           <div>
-            <QrCanvas :bits="bits" :key="bitsEpoch" />
+            <br/>
+            <br/>
+          </div>
+
+          <div>
+            <QrCanvas :bits="testBits" :key="bitsEpoch" />
           </div>
           <div>
             {{bits}}
@@ -46,7 +52,7 @@ export default defineComponent({
     return {
       lastF: 0,
 
-      tickDetector: -1,
+      tickDetector: null as number|null,
       audioContext: null as AudioContext|null,
       analyser: null as null|AnalyserNode,
       source: null as null|MediaStreamAudioSourceNode,
@@ -148,7 +154,7 @@ export default defineComponent({
     stopListening() {
       if (this.tickDetector) {
         clearInterval(this.tickDetector)
-        this.tickDetector = -1
+        this.tickDetector = null
       }
 
       if (this.source?.mediaStream) {
@@ -162,6 +168,7 @@ export default defineComponent({
 
       this.source = null
       this.analyser = null
+      this.isListening = false
     }
   },
   created(){
